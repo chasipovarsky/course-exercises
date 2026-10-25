@@ -1,0 +1,5 @@
+anthropic==2.1.0
+claude-agent-sdk==0.2.170
+google-genai==2.32.0
+mcp==2.3.0
+pytest==9.1.1

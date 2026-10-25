@@ -1,0 +1,22 @@
+# environments
+.venv/
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# runtime state: memory, history, tasks, plans, Hebcal cache, CLAUDE.md written by the agent
+runs/
+
+# anything that could hold a key (keys belong only in the shell environment)
+.env
+.env.*
+*.env
+*.key
+*.pem
+secrets*
+credentials*
+*.log
+
+# scratch
+*.tmp

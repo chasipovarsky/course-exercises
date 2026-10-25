@@ -1,0 +1,225 @@
+{
+ "harness": "sdk",
+ "model": "claude-opus-5-5",
+ "effort": "medium",
+ "run_at": "2026-10-22T08:57:44+00:00",
+ "scenario": "scenario.json",
+ "turns": [
+  {
+   "session": "s1",
+   "turn": "t1",
+   "prompt": "היי, אני בשנה ג'. תרשום לי שתי מטלות: מבחן מועד א' באלגוריתמים ב-2027-04-29, צריך בערך 12 שעות הכנה. ותרגיל בית 4 במערכות הפעלה להגשה ב-2027-04-20, בערך 5 שעות עבודה.",
+   "response": "רשמתי את שתי המטלות:\n- **T1**: מבחן מועד א' באלגוריתמים, 2027-04-29, 12 שעות הכנה\n- **T2**: תרגיל בית 4 במערכות הפעלה, הגשה 2027-04-20, 5 שעות עבודה\n\nעוד לא שמרת העדפות לימוד. אם תגידי לי כמה שעות ביום את רוצה ללמוד ובאילו ימים לא, אבנה לך תוכנית שבועית.",
+   "tools": [
+    "add_task",
+    "add_task"
+   ],
+   "input_tokens": 4,
+   "cache_read_tokens": 2842,
+   "cache_write_tokens": 3333,
+   "output_tokens": 502,
+   "cache_hit_pct": 46.0,
+   "model_calls": 2,
+   "cost_usd": 0.0376,
+   "cost_usd_at_5m_cache_prices": 0.02729,
+   "sdk_num_turns": 3,
+   "session_id": "5298f6c9-1012-4fba-814c-76f688486ad0",
+   "seconds": 47.31
+  },
+  {
+   "session": "s1",
+   "turn": "t2",
+   "prompt": "תזכור בבקשה לטווח ארוך: אני לומד/ת עד 3 שעות ביום, ולא לומד/ת בכלל בשישי ושבת.",
+   "response": "שמרתי לטווח ארוך:\n- עד 3 שעות לימוד ביום\n- ימי חופש: שישי ושבת\n\nרוצה שאבנה לך עכשיו תוכנית לשבוע הקרוב?",
+   "tools": [
+    "set_preference",
+    "set_preference"
+   ],
+   "input_tokens": 4,
+   "cache_read_tokens": 6934,
+   "cache_write_tokens": 557,
+   "output_tokens": 245,
+   "cache_hit_pct": 92.5,
+   "model_calls": 2,
+   "cost_usd": 0.01076,
+   "cost_usd_at_5m_cache_prices": 0.00909,
+   "sdk_num_turns": 3,
+   "session_id": "5298f6c9-1012-4fba-814c-76f688486ad0",
+   "seconds": 6.24
+  },
+  {
+   "session": "s1",
+   "turn": "t3",
+   "prompt": "תבנה לי תוכנית לימודים לשבוע שמתחיל ב-2027-04-18. תבדוק קודם אילו חגים יש בשבוע הזה.",
+   "response": "**החגים בשבוע הזה:**\n- 2027-04-21 (רביעי): ערב פסח\n- 2027-04-22 (חמישי): פסח, יום טוב, אין לימודים\n- 2027-04-23 עד 2027-04-24: חול המועד, ממילא שישי ושבת שלך\n\n**התוכנית (P1):**\n| תאריך | יום | מה לומדים |\n|---|---|---|\n| 2027-04-18 | ראשון | תרגיל 4 במערכות הפעלה, 3 שעות |\n| 2027-04-19 | שני | תרגיל 4 במערכות הפעלה, 2 שעות; אלגוריתמים, שעה |\n| 2027-04-20 | שלישי | אלגוריתמים, 3 שעות |\n| 2027-04-21 | רביעי | אלגוריתמים, 3 שעות |\n| 2027-04-22 | חמישי | אין לימודים (פסח) |\n| 2027-04-23 | שישי | אין לימודים |\n| 2027-04-24 | שבת | אין לימודים |\n\n- **מערכות הפעלה:** התרגיל ייגמר ב-2027-04-19, יום לפני ההגשה.\n- **אלגוריתמים:** בסוף השבוע יישארו עוד 5 שעות הכנה למבחן. אפשר להשלים אותן בשבוע של 2027-04-25, לפני המבחן ב-2027-04-29.\n- **ערב פסח:** ב-2027-04-21 יש 3 שעות לימוד, כי הוא לא מוגדר כיום חופש. אם תעדיף/י לא ללמוד בו, תגיד/י לי ואסדר מחדש.",
+   "tools": [
+    "get_holidays",
+    "plan_week"
+   ],
+   "input_tokens": 6,
+   "cache_read_tokens": 12194,
+   "cache_write_tokens": 603,
+   "output_tokens": 811,
+   "cache_hit_pct": 95.2,
+   "model_calls": 3,
+   "cost_usd": 0.02351,
+   "cost_usd_at_5m_cache_prices": 0.0217,
+   "sdk_num_turns": 3,
+   "session_id": "5298f6c9-1012-4fba-814c-76f688486ad0",
+   "seconds": 30.21
+  },
+  {
+   "session": "s1",
+   "turn": "t4",
+   "prompt": "סיימתי והגשתי את תרגיל 4 במערכות הפעלה.",
+   "response": "כל הכבוד! סימנתי את תרגיל 4 במערכות הפעלה כהושלם.\n\nבתוכנית לשבוע של 2027-04-18 היו לו 5 שעות, שעכשיו התפנו. רוצה שאבנה את התוכנית מחדש? כך ייכנסו לשבוע הזה כל 12 השעות של ההכנה למבחן באלגוריתמים.",
+   "tools": [
+    "update_task"
+   ],
+   "input_tokens": 4,
+   "cache_read_tokens": 9704,
+   "cache_write_tokens": 865,
+   "output_tokens": 255,
+   "cache_hit_pct": 91.8,
+   "model_calls": 2,
+   "cost_usd": 0.01398,
+   "cost_usd_at_5m_cache_prices": 0.01138,
+   "sdk_num_turns": 2,
+   "session_id": "5298f6c9-1012-4fba-814c-76f688486ad0",
+   "seconds": 11.57
+  },
+  {
+   "session": "s2",
+   "turn": "t5",
+   "prompt": "היי, חזרתי. כמה שעות ביום אמרתי שאני לומד/ת, ומה עוד פתוח לי?",
+   "response": "היי, ברוך/ה השב/ה!\n\n**שעות לימוד:** אמרת שאת/ה לומד/ת עד 3 שעות ביום. ימי שישי ושבת הם ימי חופש.\n\n**מה פתוח:** יש לך משימה פתוחה אחת:\n- **מבחן מועד א' באלגוריתמים**, בתאריך 2027-04-29. נשארו בערך 12 שעות לימוד.\n\nיש עוד 13 ימי לימוד עד המבחן, אז 12 שעות מספיקות בנוחות. רוצה שאבנה לך תוכנית לשבוע הקרוב?",
+   "tools": [
+    "recall",
+    "list_tasks"
+   ],
+   "input_tokens": 4,
+   "cache_read_tokens": 4665,
+   "cache_write_tokens": 1216,
+   "output_tokens": 371,
+   "cache_hit_pct": 79.3,
+   "model_calls": 2,
+   "cost_usd": 0.01831,
+   "cost_usd_at_5m_cache_prices": 0.01445,
+   "sdk_num_turns": 3,
+   "session_id": "c731e41f-f632-403f-b63a-630d7b511e89",
+   "seconds": 39.17
+  },
+  {
+   "session": "s2",
+   "turn": "t6",
+   "prompt": "שינוי: התחלתי לעבוד, אז מעכשיו אני יכול/ה ללמוד רק שעתיים ביום.",
+   "response": "עודכן: הורדתי את שעות הלימוד מ־3 ל־2 שעות ביום. ימי החופש נשארו שישי ושבת.\n\nעדיין יש מספיק זמן למבחן באלגוריתמים בתאריך 2027-04-29. ספרתי בערך 13 ימי לימוד עד אז, כלומר כ־26 שעות, והמבחן צריך בערך 12. ייתכן שפסח יוריד כמה ימים, אבל עדיין יישאר מרווח.\n\nרוצה שאבנה לך תוכנית לשבוע הקרוב לפי שעתיים ביום? היא תתחשב גם בחגים.",
+   "tools": [
+    "set_preference"
+   ],
+   "input_tokens": 4,
+   "cache_read_tokens": 6483,
+   "cache_write_tokens": 438,
+   "output_tokens": 584,
+   "cache_hit_pct": 93.6,
+   "model_calls": 2,
+   "cost_usd": 0.0165,
+   "cost_usd_at_5m_cache_prices": 0.01518,
+   "sdk_num_turns": 2,
+   "session_id": "c731e41f-f632-403f-b63a-630d7b511e89",
+   "seconds": 16.53
+  },
+  {
+   "session": "s2",
+   "turn": "t7",
+   "prompt": "תבנה מחדש תוכנית לשבוע שמתחיל ב-2027-04-25 לפי מה שיש עכשיו.",
+   "response": "שמרתי את התוכנית לשבוע שמתחיל ב־2027-04-25, לפי שעתיים ביום:\n\n| תאריך | יום | לימוד |\n|---|---|---|\n| 2027-04-25 | ראשון | אלגוריתמים, שעתיים |\n| 2027-04-26 | שני | אלגוריתמים, שעתיים |\n| 2027-04-27 | שלישי | אלגוריתמים, שעתיים |\n| 2027-04-28 | רביעי | אין לימוד (שביעי של פסח) |\n| 2027-04-29 | חמישי | יום המבחן |\n| 2027-04-30 – 2027-05-01 | שישי–שבת | ימי חופש |\n\n⚠️ **הבעיה:** בשבוע הזה נכנסות רק 6 שעות מתוך 12, וכל השאר יוצא אחרי המבחן. עם שעתיים ביום, אם מתחילים ללמוד רק ב־2027-04-25 לא מספיקים.\n\n**ההמלצה שלי:** להתחיל כבר השבוע. רוצה שאבנה גם תוכניות לשבועות שמתחילים ב־2027-04-12 וב־2027-04-18? ככה תספיק/י את כל 12 השעות לפני המבחן.",
+   "tools": [
+    "plan_week"
+   ],
+   "input_tokens": 4,
+   "cache_read_tokens": 7637,
+   "cache_write_tokens": 817,
+   "output_tokens": 587,
+   "cache_hit_pct": 90.3,
+   "model_calls": 2,
+   "cost_usd": 0.01982,
+   "cost_usd_at_5m_cache_prices": 0.01737,
+   "sdk_num_turns": 2,
+   "session_id": "c731e41f-f632-403f-b63a-630d7b511e89",
+   "seconds": 10.83
+  }
+ ],
+ "totals": {
+  "input_tokens": 30,
+  "cache_read_tokens": 50459,
+  "cache_write_tokens": 7829,
+  "output_tokens": 3355,
+  "model_calls": 15,
+  "cost_usd": 0.14048,
+  "seconds": 161.86,
+  "cache_hit_pct": 86.5
+ },
+ "checks": [
+  {
+   "id": "tasks_saved",
+   "about": "both tasks persisted with the right due dates",
+   "passed": true,
+   "detail": "2 tasks on disk"
+  },
+  {
+   "id": "hw_done",
+   "about": "OS homework marked done in session 1",
+   "passed": true,
+   "detail": "statuses=['done']"
+  },
+  {
+   "id": "off_days_saved",
+   "about": "off days remembered",
+   "passed": true,
+   "detail": "off_days=['Fri', 'Sat']"
+  },
+  {
+   "id": "contradiction_resolved",
+   "about": "2h replaced 3h, 3h archived not lost",
+   "passed": true,
+   "detail": "current=2.0 archived=[3.0]"
+  },
+  {
+   "id": "plan1_respects_holiday",
+   "about": "first plan skips Pesach I, Fri/Sat, max 3h",
+   "passed": true,
+   "detail": "P1: 12h planned, all constraints hold"
+  },
+  {
+   "id": "plan2_uses_new_pref",
+   "about": "second plan uses 2h/day, skips Pesach VII",
+   "passed": true,
+   "detail": "P2: 6h planned, all constraints hold"
+  },
+  {
+   "id": "external_tool_used",
+   "about": "Hebcal was queried (cache file on disk)",
+   "passed": true,
+   "detail": "2 cached Hebcal responses"
+  },
+  {
+   "id": "recall_in_session2",
+   "about": "session 2 answers from memory",
+   "passed": true,
+   "detail": "found ['3']"
+  }
+ ],
+ "checks_passed": "8/8",
+ "lines_of_code": {
+  "loop": 2,
+  "tools": 4,
+  "history": 2,
+  "memory": 3,
+  "context": 1,
+  "compaction": 1,
+  "caching": 1,
+  "tokens": 2,
+  "agent.py + tools.py + main.py": 156
+ }
+}

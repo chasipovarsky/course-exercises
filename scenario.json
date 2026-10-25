@@ -1,0 +1,43 @@
+{
+  "description": "Study planner, two sessions. Session 2 is a fresh agent instance that only has what was saved to disk.",
+  "today": "2027-04-12",
+  "compaction_threshold": 9000,
+  "sessions": [
+    {
+      "id": "s1",
+      "turns": [
+        {"id": "t1", "prompt": "היי, אני בשנה ג'. תרשום לי שתי מטלות: מבחן מועד א' באלגוריתמים ב-2027-04-29, צריך בערך 12 שעות הכנה. ותרגיל בית 4 במערכות הפעלה להגשה ב-2027-04-20, בערך 5 שעות עבודה."},
+        {"id": "t2", "prompt": "תזכור בבקשה לטווח ארוך: אני לומד/ת עד 3 שעות ביום, ולא לומד/ת בכלל בשישי ושבת."},
+        {"id": "t3", "prompt": "תבנה לי תוכנית לימודים לשבוע שמתחיל ב-2027-04-18. תבדוק קודם אילו חגים יש בשבוע הזה."},
+        {"id": "t4", "prompt": "סיימתי והגשתי את תרגיל 4 במערכות הפעלה."}
+      ]
+    },
+    {
+      "id": "s2",
+      "turns": [
+        {"id": "t5", "prompt": "היי, חזרתי. כמה שעות ביום אמרתי שאני לומד/ת, ומה עוד פתוח לי?"},
+        {"id": "t6", "prompt": "שינוי: התחלתי לעבוד, אז מעכשיו אני יכול/ה ללמוד רק שעתיים ביום."},
+        {"id": "t7", "prompt": "תבנה מחדש תוכנית לשבוע שמתחיל ב-2027-04-25 לפי מה שיש עכשיו."}
+      ]
+    }
+  ],
+  "checks": [
+    {"id": "tasks_saved", "type": "task_exists", "about": "both tasks persisted with the right due dates",
+     "tasks": [{"course_contains": "אלגוריתמים", "due": "2027-04-29", "kind": "exam"},
+               {"course_contains": "מערכות הפעלה", "due": "2027-04-20"}]},
+    {"id": "hw_done", "type": "task_status", "about": "OS homework marked done in session 1",
+     "course_contains": "מערכות הפעלה", "status": "done"},
+    {"id": "off_days_saved", "type": "pref_equals", "about": "off days remembered",
+     "key": "off_days", "value": ["Fri", "Sat"]},
+    {"id": "contradiction_resolved", "type": "pref_history", "about": "2h replaced 3h, 3h archived not lost",
+     "key": "daily_study_hours", "current": 2, "old": 3},
+    {"id": "plan1_respects_holiday", "type": "plan_constraints", "about": "first plan skips Pesach I, Fri/Sat, max 3h",
+     "plan": 0, "start": "2027-04-18", "max_daily": 3, "no_weekdays": ["Fri", "Sat"], "no_dates": ["2027-04-22"]},
+    {"id": "plan2_uses_new_pref", "type": "plan_constraints", "about": "second plan uses 2h/day, skips Pesach VII",
+     "plan": -1, "start": "2027-04-25", "max_daily": 2, "no_weekdays": ["Fri", "Sat"], "no_dates": ["2027-04-28"],
+     "no_tasks_done": true},
+    {"id": "external_tool_used", "type": "holidays_cached", "about": "Hebcal was queried (cache file on disk)"},
+    {"id": "recall_in_session2", "type": "response_contains", "about": "session 2 answers from memory",
+     "turn": "t5", "any_of": ["3", "שלוש"]}
+  ]
+}
