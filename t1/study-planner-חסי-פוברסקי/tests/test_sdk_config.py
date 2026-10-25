@@ -62,6 +62,54 @@ def server_tools(tools_mod, tk, data_dir):
     return captured
 
 
+class FakeSdkClient:
+    """Stands in for ClaudeSDKClient: records options, replays one scripted turn."""
+    instances = []
+
+    def __init__(self, options):
+        self.options = options
+        FakeSdkClient.instances.append(self)
+
+    async def connect(self):
+        pass
+
+    async def query(self, text):
+        self.prompt = text
+
+    async def receive_response(self):
+        from claude_agent_sdk import AssistantMessage, ResultMessage, TextBlock, ToolUseBlock
+        yield AssistantMessage(content=[ToolUseBlock(id="t1", name="mcp__planner__list_tasks", input={})],
+                               model="claude-opus-5-5", message_id="msg-1")
+        yield AssistantMessage(content=[TextBlock(text="nothing open")], model="claude-opus-5-5", message_id="msg-2")
+        yield ResultMessage(subtype="success", duration_ms=10, duration_api_ms=8, is_error=False, num_turns=2,
+                            session_id=f"cc-session-{len(FakeSdkClient.instances)}", total_cost_usd=0.01,
+                            usage={"input_tokens": 4, "cache_read_input_tokens": 100,
+                                   "cache_creation_input_tokens": 50, "output_tokens": 20},
+                            result="nothing open")
+
+    async def disconnect(self):
+        pass
+
+
+def test_session_id_is_saved_and_resumed(sdk, data_dir, monkeypatch):
+    _, agent_mod = sdk
+    FakeSdkClient.instances.clear()
+    monkeypatch.setattr(agent_mod, "ClaudeSDKClient", FakeSdkClient)
+
+    first = agent_mod.SdkAgent(data_dir, "mine", "2027-04-12")
+    assert first.options.resume is None  # nothing saved yet: new conversation
+    r = asyncio.run(first.turn("what is open?"))
+    asyncio.run(first.close())
+    assert r["session_id"] == "cc-session-1"
+    assert r["tools"] == ["list_tasks"] and r["model_calls"] == 2  # receive_response parsed
+    assert agent_mod.saved_session(data_dir, "mine") == "cc-session-1"  # persisted to disk
+    assert agent_mod.saved_session(data_dir, "other") is None
+
+    second = agent_mod.SdkAgent(data_dir, "mine", "2027-04-12", resume=agent_mod.saved_session(data_dir, "mine"))
+    asyncio.run(second.turn("and now?"))
+    assert FakeSdkClient.instances[-1].options.resume == "cc-session-1"  # resume=session_id reached the client
+
+
 def test_every_harness_part_is_marked(sdk):
     import re
     text = (ROOT / "SDK" / "agent.py").read_text(encoding="utf-8") + (ROOT / "SDK" / "tools.py").read_text(encoding="utf-8")

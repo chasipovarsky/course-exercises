@@ -214,12 +214,12 @@
  "lines_of_code": {
   "loop": 2,
   "tools": 4,
-  "history": 2,
+  "history": 3,
   "memory": 3,
   "context": 1,
   "compaction": 1,
   "caching": 1,
   "tokens": 2,
-  "agent.py + tools.py + main.py": 156
+  "agent.py + tools.py + main.py": 172
  }
 }

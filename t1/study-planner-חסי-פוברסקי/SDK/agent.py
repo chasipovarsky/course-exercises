@@ -1,6 +1,7 @@
 """Study-planner agent on the Claude Agent SDK: Claude Code runs the harness, we configure it."""
 from __future__ import annotations
 
+import json
 import time
 from datetime import datetime
 from pathlib import Path
@@ -12,14 +13,31 @@ from shared.toolkit import Toolkit
 from tools import ALLOWED, make_server, write_claude_md
 
 
+SESSIONS_FILE = "sdk_sessions.json"  # {our session name: Claude Code session_id}
+
+
 def _cost(u: dict) -> float:
     return (u["input_tokens"] * PRICE["input"] + u["output_tokens"] * PRICE["output"]
             + u["cache_write_tokens"] * PRICE["cache_write"] + u["cache_read_tokens"] * PRICE["cache_read"]) / 1e6
 
 
+def saved_session(data_dir: str | Path, name: str) -> str | None:
+    """The Claude Code session_id last saved for this session name, to pass as resume=."""
+    p = Path(data_dir) / SESSIONS_FILE
+    return json.loads(p.read_text(encoding="utf-8")).get(name) if p.exists() else None
+
+
+def _save_session(data_dir: Path, name: str, session_id: str) -> None:
+    p = data_dir / SESSIONS_FILE
+    data = json.loads(p.read_text(encoding="utf-8")) if p.exists() else {}
+    data[name] = session_id
+    p.write_text(json.dumps(data, indent=1), encoding="utf-8")
+
+
 class SdkAgent:
     def __init__(self, data_dir: str | Path, session_id: str, today: str, resume: str | None = None):
         cwd = Path(data_dir)
+        self.cwd, self.name = cwd, session_id
         self.toolkit = Toolkit(cwd, clock=lambda: f"{today}T{datetime.now():%H:%M:%S}")
         write_claude_md(self.toolkit, cwd)  # replaces: memory.py (what is remembered gets loaded next session)
         self.options = ClaudeAgentOptions(
@@ -57,6 +75,7 @@ class SdkAgent:
             elif isinstance(msg, ResultMessage):
                 result = msg
         self.session_id = result.session_id  # replaces: history.py (resume=session_id later)
+        _save_session(self.cwd, self.name, result.session_id)  # replaces: history.py (persisted for resume)
         u = result.usage or {}  # replaces: tokens.py
         usage = {"input_tokens": u.get("input_tokens", 0), "cache_read_tokens": u.get("cache_read_input_tokens", 0),
                  "cache_write_tokens": u.get("cache_creation_input_tokens", 0),

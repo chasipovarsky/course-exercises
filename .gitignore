@@ -5,7 +5,7 @@ __pycache__/
 *.pyc
 .pytest_cache/
 
-# runtime state: memory, history, tasks, plans, Hebcal cache, CLAUDE.md written by the agent
+# runtime state written by the agents (memory, history, plans, CLAUDE.md)
 runs/
 
 # anything that could hold a key (keys belong only in the shell environment)
@@ -17,6 +17,9 @@ runs/
 secrets*
 credentials*
 *.log
+
+# local backups of the per-exercise git repos that were merged in here
+.git-backup/
 
 # scratch
 *.tmp

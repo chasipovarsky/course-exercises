@@ -1,7 +1,8 @@
 """Run the Agent-SDK agent on a scenario, or chat with it.
 
   python SDK/main.py --scenario scenario.json --out results/sdk.json
-  python SDK/main.py --chat [--resume <session_id>]
+  python SDK/main.py --chat [--session my-session]   (resumes that session's saved session_id)
+  python SDK/main.py --chat --resume <session_id>   (resume an explicit Claude Code session)
 
 Runs on your Claude Code login. ANTHROPIC_API_KEY is removed from the environment so
 billing never silently moves to an API key.
@@ -20,7 +21,7 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 sys.path[:0] = [str(HERE), str(HERE.parent)]
 
-from agent import SdkAgent  # noqa: E402
+from agent import SdkAgent, saved_session  # noqa: E402
 from shared.runner import ROOT, count_loc, run_scenario, utf8_console  # noqa: E402
 
 DATA_DIR = ROOT / "runs" / "sdk"
@@ -51,8 +52,11 @@ def clean_claude_code_sessions(cwd: Path) -> None:
         print(f"clean state: deleted {n} Claude Code session files in {folder}", flush=True)
 
 
-async def chat(resume: str | None) -> None:
-    agent = SdkAgent(ROOT / "runs" / "chat-sdk", "chat", date.today().isoformat(), resume=resume)
+async def chat(name: str, resume: str | None) -> None:
+    data_dir = ROOT / "runs" / "chat-sdk"
+    resume = resume or saved_session(data_dir, name)
+    print(f"session {name}: " + (f"resuming {resume}" if resume else "new conversation"))
+    agent = SdkAgent(data_dir, name, date.today().isoformat(), resume=resume)
     try:
         while (text := input("\nyou> ").strip()) not in ("", "exit"):
             r = await agent.turn(text)
@@ -70,6 +74,7 @@ def main() -> None:
     ap.add_argument("--scenario")
     ap.add_argument("--out", default="results/sdk.json")
     ap.add_argument("--chat", action="store_true")
+    ap.add_argument("--session", default="chat")
     ap.add_argument("--resume")
     args = ap.parse_args()
 
@@ -79,7 +84,7 @@ def main() -> None:
         clean_claude_code_sessions(DATA_DIR)  # runs/sdk itself is wiped by run_scenario
         asyncio.run(run_scenario(make, args.scenario, args.out, DATA_DIR, "sdk", loc()))
     elif args.chat:
-        asyncio.run(chat(args.resume))
+        asyncio.run(chat(args.session, args.resume))
     else:
         ap.print_help()
 
