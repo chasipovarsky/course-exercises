@@ -1,0 +1,220 @@
+{
+ "harness": "api",
+ "model": "gemini-3.5-flash-lite",
+ "effort": "thinking_level=MEDIUM",
+ "provider": "gemini",
+ "pricing_usd_per_mtok": {
+  "input": 0.3,
+  "output": 2.5,
+  "cached": 0.03
+ },
+ "pricing_source": "https://ai.google.dev/gemini-api/docs/pricing, page last updated 2026-10-19 UTC, read 2026-10-22; Standard tier, text, prompts <= 200k; 3.8/3.6 Flash prices valid through 2026-12-31",
+ "run_at": "2026-10-25T17:31:34+00:00",
+ "scenario": "scenario.json",
+ "turns": [
+  {
+   "session": "s1",
+   "turn": "t1",
+   "prompt": "היי, אני בשנה ג'. תרשום לי שתי מטלות: מבחן מועד א' באלגוריתמים ב-2027-04-29, צריך בערך 12 שעות הכנה. ותרגיל בית 4 במערכות הפעלה להגשה ב-2027-04-20, בערך 5 שעות עבודה.",
+   "response": "הוספתי את שתי המטלות בהצלחה:\n1. **אלגוריתמים** – מבחן מועד א' (2027-04-29, 12 שעות) [מזהה: T1]\n2. **מערכות הפעלה** – תרגיל בית 4 (2027-04-20, 5 שעות) [מזהה: T2]",
+   "tools": [
+    "add_task",
+    "add_task"
+   ],
+   "input_tokens": 2578,
+   "cache_read_tokens": 0,
+   "cache_write_tokens": 0,
+   "output_tokens": 416,
+   "cache_hit_pct": 0.0,
+   "model_calls": 2,
+   "cost_usd": 0.0,
+   "theoretical_cost_usd": 0.001813,
+   "seconds": 3.94
+  },
+  {
+   "session": "s1",
+   "turn": "t2",
+   "prompt": "תזכור בבקשה לטווח ארוך: אני לומד/ת עד 3 שעות ביום, ולא לומד/ת בכלל בשישי ושבת.",
+   "response": "שמרתי את ההעדפות שלך:\n- מקסימום שעות לימוד ביום: 3\n- ימים חופשיים בלי לימודים: שישי ושבת (Fri, Sat)",
+   "tools": [
+    "set_preference",
+    "set_preference"
+   ],
+   "input_tokens": 3731,
+   "cache_read_tokens": 0,
+   "cache_write_tokens": 0,
+   "output_tokens": 310,
+   "cache_hit_pct": 0.0,
+   "model_calls": 2,
+   "cost_usd": 0.0,
+   "theoretical_cost_usd": 0.001894,
+   "seconds": 4.46
+  },
+  {
+   "session": "s1",
+   "turn": "t3",
+   "prompt": "תבנה לי תוכנית לימודים לשבוע שמתחיל ב-2027-04-18. תבדוק קודם אילו חגים יש בשבוע הזה.",
+   "response": "בחגים בשבוע שמתחיל ב-18.04.2027 יש את אירועי פסח הבאים:\n- **21.04**: ערב פסח\n- **22.04**: פסח א' (יום שבתון)\n- **23.04 – 25.04**: חול המועד פסח\n\nלהלן תוכנית הלימודים לשבוע זה (לפי המגבלה של עד 3 שעות ביום וימי שישי-שבת חופשיים):\n\n- **2027-04-18 (ראשון):** מערכות הפעלה - תרגיל בית 4 (3 שעות)\n- **2027-04-19 (שני):** מערכות הפעלה - תרגיל בית 4 (שעתיים), אלגוריתמים - מבחן מועד א' (שעה)\n- **2027-04-20 (שלישי):** אלגוריתמים - מבחן מועד א' (3 שעות) [הגשת תרגיל מערכות הפעלה היום]\n- **2027-04-21 (רביעי):** אלגוריתמים - מבחן מועד א' (3 שעות) [ערב פסח]\n- **2027-04-22 (חמישי):** חופש (פסח א')\n- **2027-04-23 (שישי):** יום חופשי קבוע (שישי)\n- **2027-04-24 (שבת):** יום חופשי קבוע (שבת)\n\nנותרו עוד 5 שעות הכנה לאלגוריתמים לשבוע הבא.",
+   "tools": [
+    "get_holidays",
+    "plan_week"
+   ],
+   "input_tokens": 5002,
+   "cache_read_tokens": 0,
+   "cache_write_tokens": 0,
+   "output_tokens": 1099,
+   "cache_hit_pct": 0.0,
+   "model_calls": 2,
+   "cost_usd": 0.0,
+   "theoretical_cost_usd": 0.004248,
+   "seconds": 10.5
+  },
+  {
+   "session": "s1",
+   "turn": "t4",
+   "prompt": "סיימתי והגשתי את תרגיל 4 במערכות הפעלה.",
+   "response": "כל הכבוד! עדכנתי את סטטוס תרגיל 4 במערכות הפעלה (T2) ל-**בוצע** (done).",
+   "tools": [
+    "update_task"
+   ],
+   "input_tokens": 7509,
+   "cache_read_tokens": 0,
+   "cache_write_tokens": 0,
+   "output_tokens": 166,
+   "cache_hit_pct": 0.0,
+   "model_calls": 2,
+   "cost_usd": 0.0,
+   "theoretical_cost_usd": 0.002668,
+   "seconds": 3.57
+  },
+  {
+   "session": "s2",
+   "turn": "t5",
+   "prompt": "היי, חזרתי. כמה שעות ביום אמרתי שאני לומד/ת, ומה עוד פתוח לי?",
+   "response": "אמרת שאת/ה לומד/ת **3 שעות ביום**.\n\nהמשימה הפתוחה היחידה כרגע היא:\n- **מבחן באלגוריתמים** (T1) — תאריך הגשה/מבחן: **2027-04-29**, נותרו 12 שעות ללמוד.",
+   "tools": [
+    "list_tasks"
+   ],
+   "input_tokens": 2428,
+   "cache_read_tokens": 0,
+   "cache_write_tokens": 0,
+   "output_tokens": 411,
+   "cache_hit_pct": 0.0,
+   "model_calls": 2,
+   "cost_usd": 0.0,
+   "theoretical_cost_usd": 0.001756,
+   "seconds": 4.48
+  },
+  {
+   "session": "s2",
+   "turn": "t6",
+   "prompt": "שינוי: התחלתי לעבוד, אז מעכשיו אני יכול/ה ללמוד רק שעתיים ביום.",
+   "response": "עדכנתי את ההעדפה: מקסימום שעות הלימוד ביום עודכן מ-3 ל-**2 שעות**.",
+   "tools": [
+    "set_preference"
+   ],
+   "input_tokens": 3361,
+   "cache_read_tokens": 0,
+   "cache_write_tokens": 0,
+   "output_tokens": 143,
+   "cache_hit_pct": 0.0,
+   "model_calls": 2,
+   "cost_usd": 0.0,
+   "theoretical_cost_usd": 0.001366,
+   "seconds": 2.93
+  },
+  {
+   "session": "s2",
+   "turn": "t7",
+   "prompt": "תבנה מחדש תוכנית לשבוע שמתחיל ב-2027-04-25 לפי מה שיש עכשיו.",
+   "response": "הנה תוכנית הלימודים לשבוע שמתחיל ב-2027-04-25 (לפי מגבלה של שעתיים ביום, והחגים בשבוע זה):\n\n* **2027-04-25 (יום א')**: אלגוריתמים — 2 שעות\n* **2027-04-26 (יום ב')**: אלגוריתמים — 2 שעות\n* **2027-04-27 (יום ג')**: אלגוריתמים — 2 שעות\n* **2027-04-28 (יום ד')**: חג (שביעי של פסח) — חופש\n* **2027-04-29 (יום ה')**: מועד המבחן (חופש הכנה/מבחן)\n* **2027-04-30 (יום ו')**: יום חופש קבוע\n* **2027-05-01 (יום ש')**: יום חופש קבוע\n\nנותרו עוד 6 שעות ללמוד למבחן זה לאחר שבוע זה (מתוך 12 שעות סך הכל).",
+   "tools": [
+    "plan_week"
+   ],
+   "input_tokens": 4031,
+   "cache_read_tokens": 0,
+   "cache_write_tokens": 0,
+   "output_tokens": 656,
+   "cache_hit_pct": 0.0,
+   "model_calls": 2,
+   "cost_usd": 0.0,
+   "theoretical_cost_usd": 0.002849,
+   "seconds": 4.15
+  }
+ ],
+ "totals": {
+  "input_tokens": 28640,
+  "cache_read_tokens": 0,
+  "cache_write_tokens": 0,
+  "output_tokens": 3201,
+  "model_calls": 14,
+  "cost_usd": 0.0,
+  "seconds": 34.03,
+  "theoretical_cost_usd": 0.016594,
+  "cache_hit_pct": 0.0
+ },
+ "checks": [
+  {
+   "id": "tasks_saved",
+   "about": "both tasks persisted with the right due dates",
+   "passed": true,
+   "detail": "2 tasks on disk"
+  },
+  {
+   "id": "hw_done",
+   "about": "OS homework marked done in session 1",
+   "passed": true,
+   "detail": "statuses=['done']"
+  },
+  {
+   "id": "off_days_saved",
+   "about": "off days remembered",
+   "passed": true,
+   "detail": "off_days=['Fri', 'Sat']"
+  },
+  {
+   "id": "contradiction_resolved",
+   "about": "2h replaced 3h, 3h archived not lost",
+   "passed": true,
+   "detail": "current=2.0 archived=[3.0]"
+  },
+  {
+   "id": "plan1_respects_holiday",
+   "about": "first plan skips Pesach I, Fri/Sat, max 3h",
+   "passed": true,
+   "detail": "P1: 12h planned, all constraints hold"
+  },
+  {
+   "id": "plan2_uses_new_pref",
+   "about": "second plan uses 2h/day, skips Pesach VII",
+   "passed": true,
+   "detail": "P2: 6h planned, all constraints hold"
+  },
+  {
+   "id": "external_tool_used",
+   "about": "Hebcal was queried (cache file on disk)",
+   "passed": true,
+   "detail": "3 cached Hebcal responses"
+  },
+  {
+   "id": "recall_in_session2",
+   "about": "session 2 answers from memory",
+   "passed": true,
+   "detail": "found ['3']"
+  }
+ ],
+ "checks_passed": "8/8",
+ "lines_of_code": {
+  "loop": 93,
+  "tools": 25,
+  "history": 40,
+  "memory": 12,
+  "context": 24,
+  "compaction": 45,
+  "caching": 33,
+  "tokens": 50,
+  "(log helper)": 5,
+  "gemini_agent.py + main.py": 124,
+  "total": 451
+ }
+}
