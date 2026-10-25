@@ -10,7 +10,7 @@ from pathlib import Path
 
 from harness import compaction, context, gemini_caching
 from harness.gemini_loop import GeminiCaller, run_turn
-from harness.gemini_tokens import GeminiTurnMeter
+from harness.gemini_tokens import DEFAULT_MODEL, GeminiTurnMeter
 from harness.history import History
 from harness.log import log
 from shared.prompts import SYSTEM_PROMPT
@@ -19,22 +19,24 @@ from shared.toolkit import Toolkit
 
 class GeminiAgent:
     def __init__(self, client, data_dir: str | Path, session_id: str, today: str,
-                 compaction_threshold: int = 30000, fetch=None, sleep=time.sleep):
+                 compaction_threshold: int = 30000, fetch=None, sleep=time.sleep,
+                 model: str = DEFAULT_MODEL):
         self.client = client
         self.today = today
         self.threshold = compaction_threshold
         self.sleep = sleep
+        self.model = model
         self.toolkit = Toolkit(data_dir, clock=lambda: f"{today}T{datetime.now():%H:%M:%S}", fetch=fetch)
         self.history = History(Path(data_dir) / "sessions", session_id, provider="gemini")
-        self.config = gemini_caching.frozen_config(SYSTEM_PROMPT)  # built once: identical prefix every call
-        self.last_meter = GeminiTurnMeter()
+        self.config = gemini_caching.frozen_config(SYSTEM_PROMPT, model)  # built once: identical prefix every call
+        self.last_meter = GeminiTurnMeter(model)
         self.compactions = 0
-        log("gemini_agent.py", f"session {session_id} ready (today={today}, data={data_dir})")
+        log("gemini_agent.py", f"session {session_id} ready (model={model}, today={today}, data={data_dir})")
 
     def turn(self, user_text: str) -> dict:
         t0 = time.perf_counter()
-        meter = GeminiTurnMeter()
-        call = GeminiCaller(self.client, meter, self.config, sleep=self.sleep)
+        meter = GeminiTurnMeter(self.model)
+        call = GeminiCaller(self.client, meter, self.config, sleep=self.sleep, model=self.model)
         meter.last_context_tokens = self.last_meter.last_context_tokens
         if compaction.maybe_compact(call, self.history, meter, self.threshold):
             self.compactions += 1

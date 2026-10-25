@@ -7,6 +7,8 @@ Free tier is rate-limited, so 429 (and 503 overload) is retried with exponential
 """
 from __future__ import annotations
 
+import json
+import os
 import re
 import time
 
@@ -15,7 +17,7 @@ from google.genai import errors, types
 from shared.toolkit import Toolkit
 
 from . import gemini_caching, gemini_tools
-from .gemini_tokens import MODEL, GeminiTurnMeter
+from .gemini_tokens import DEFAULT_MODEL, GeminiTurnMeter
 from .history import History
 from .log import log
 
@@ -33,19 +35,42 @@ def _retry_delay(e: Exception, attempt: int) -> float:
     return min(BASE_DELAY * 2 ** (attempt - 1), MAX_DELAY)
 
 
+def redact(text: str) -> str:
+    """Remove anything that could be the API key before it reaches a log or a file."""
+    key = os.environ.get("GEMINI_API_KEY", "").strip()
+    if key:
+        text = text.replace(key, "[REDACTED]")
+    text = re.sub(r"AIza[0-9A-Za-z_\-]{20,}", "[REDACTED]", text)
+    return re.sub(r"(?i)(key=)[^&\s\"']+", r"\1[REDACTED]", text)
+
+
+def error_body(e: Exception) -> str:
+    """The API's error JSON (status, message, quota violations, retry info), key redacted."""
+    body = getattr(e, "details", None)
+    if body is None:
+        return redact(f"{type(e).__name__}: {e}")
+    try:
+        text = json.dumps(body, ensure_ascii=False, indent=1)
+    except (TypeError, ValueError):
+        text = str(body)
+    return redact(text)
+
+
 class GeminiCaller:
     """Thin wrapper over client.models.generate_content; returns plain dicts."""
 
-    def __init__(self, client, meter: GeminiTurnMeter, config, sleep=time.sleep):
-        self.client, self.meter, self.config, self.sleep = client, meter, config, sleep
+    def __init__(self, client, meter: GeminiTurnMeter, config, sleep=time.sleep, model: str = DEFAULT_MODEL):
+        self.client, self.meter, self.config, self.sleep, self.model = client, meter, config, sleep, model
 
     def _generate(self, contents, config, label):
         # stored dicts -> Content; base64 thought_signature strings decode back to the original bytes
         contents = [types.Content.model_validate(c) for c in contents]
         for attempt in range(1, MAX_ATTEMPTS + 1):
             try:
-                return self.client.models.generate_content(model=MODEL, contents=contents, config=config)
+                return self.client.models.generate_content(model=self.model, contents=contents, config=config)
             except (errors.ClientError, errors.ServerError) as e:
+                if attempt == 1 or e.code not in RETRY_CODES or attempt == MAX_ATTEMPTS:
+                    log("gemini_loop.py", f"{label}: HTTP {e.code} from {self.model}, error body:\n{error_body(e)}")
                 if e.code not in RETRY_CODES or attempt == MAX_ATTEMPTS:
                     raise
                 delay = _retry_delay(e, attempt)
@@ -56,7 +81,7 @@ class GeminiCaller:
         log("gemini_loop.py", f"{label}: request with {len(contents)} contents")
         resp = self._generate(contents, config or self.config, label)
         self.meter.add(resp.usage_metadata, label)
-        gemini_caching.report(resp.usage_metadata, label)
+        gemini_caching.report(resp.usage_metadata, label, self.model)
         cand = resp.candidates[0] if resp.candidates else None
         if cand is None or cand.content is None or not cand.content.parts:
             reason = getattr(cand, "finish_reason", None) or getattr(resp, "prompt_feedback", None)
@@ -67,7 +92,7 @@ class GeminiCaller:
     def summarize(self, prompt: str) -> str:
         """One tool-less, system-less request; used by compaction.py."""
         resp = self([{"role": "user", "parts": [{"text": prompt}]}], label="compaction",
-                    config=gemini_caching.summary_config())
+                    config=gemini_caching.summary_config(self.model))
         return _text(resp["content"])
 
 

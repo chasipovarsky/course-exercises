@@ -46,10 +46,13 @@ def gemini_client():
     return genai.Client(api_key=key)
 
 
-def make_factory(provider: str, client, data_dir: Path):
+def make_factory(provider: str, client, data_dir: Path, model: str | None = None):
     if provider == "gemini":
         from gemini_agent import GeminiAgent
-        return lambda session_id, today, threshold: GeminiAgent(client, data_dir, session_id, today, threshold)
+        from harness.gemini_tokens import DEFAULT_MODEL
+        m = model or DEFAULT_MODEL
+        return lambda session_id, today, threshold: GeminiAgent(client, data_dir, session_id, today, threshold,
+                                                                 model=m)
     from agent import ApiAgent
     return lambda session_id, today, threshold: ApiAgent(client, data_dir, session_id, today, threshold)
 
@@ -58,6 +61,7 @@ def main() -> None:
     utf8_console()
     ap = argparse.ArgumentParser()
     ap.add_argument("--provider", choices=["anthropic", "gemini"], default="anthropic")
+    ap.add_argument("--model", help="Gemini model id (default gemini-3.8-flash); Gemini only")
     ap.add_argument("--scenario")
     ap.add_argument("--out")
     ap.add_argument("--chat", action="store_true")
@@ -66,6 +70,8 @@ def main() -> None:
     if not (args.scenario or args.chat):
         ap.print_help()
         return
+    if args.model and args.provider != "gemini":
+        sys.exit("--model applies to --provider gemini only (the Anthropic model is fixed for the comparison)")
     if args.provider == "gemini":
         client = gemini_client()
     else:
@@ -73,16 +79,28 @@ def main() -> None:
         client = anthropic.Anthropic()
 
     if args.scenario:
-        make = make_factory(args.provider, client, DATA_DIR[args.provider])
+        make = make_factory(args.provider, client, DATA_DIR[args.provider], args.model)
         meta = None
         if args.provider == "gemini":
-            from harness.gemini_tokens import MODEL, PRICE, PRICE_SOURCE, THINKING_LEVEL
-            meta = {"provider": "gemini", "model": MODEL, "effort": f"thinking_level={THINKING_LEVEL}",
-                    "pricing_usd_per_mtok": PRICE, "pricing_source": PRICE_SOURCE}
-        asyncio.run(run_scenario(make, args.scenario, args.out or DEFAULT_OUT[args.provider],
-                                 DATA_DIR[args.provider], "api", loc(args.provider), meta))
+            from harness.gemini_tokens import DEFAULT_MODEL, PRICE_SOURCE, THINKING_LEVEL, price_for
+            model = args.model or DEFAULT_MODEL
+            thinking = f"thinking_level={THINKING_LEVEL}" if model.startswith("gemini-3") else "model default"
+            meta = {"provider": "gemini", "model": model, "effort": thinking,
+                    "pricing_usd_per_mtok": price_for(model), "pricing_source": PRICE_SOURCE}
+        run = run_scenario(make, args.scenario, args.out or DEFAULT_OUT[args.provider],
+                           DATA_DIR[args.provider], "api", loc(args.provider), meta)
+        if args.provider == "gemini":
+            from google.genai import errors
+            from harness.gemini_loop import error_body
+            try:
+                asyncio.run(run)
+            except (errors.ClientError, errors.ServerError) as e:
+                sys.exit(f"\nGemini returned HTTP {e.code} and the run stopped. Error body (key redacted):\n"
+                         f"{error_body(e)}\nNo results file was written.")
+        else:
+            asyncio.run(run)
     else:
-        make = make_factory(args.provider, client, ROOT / "runs" / f"chat-{args.provider}")
+        make = make_factory(args.provider, client, ROOT / "runs" / f"chat-{args.provider}", args.model)
         agent = make(args.session, date.today().isoformat(), 30000)
         while (text := input("\nyou> ").strip()) not in ("", "exit"):
             r = agent.turn(text)

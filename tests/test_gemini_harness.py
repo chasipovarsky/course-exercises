@@ -10,7 +10,7 @@ pytest.importorskip("google.genai")
 from google.genai import errors, types  # noqa: E402
 
 from harness import gemini_caching, gemini_tools  # noqa: E402
-from harness.gemini_tokens import PRICE, GeminiTurnMeter, theoretical_cost_usd  # noqa: E402
+from harness.gemini_tokens import PRICES, GeminiTurnMeter, theoretical_cost_usd  # noqa: E402
 
 sys.path.insert(0, str(ROOT / "API"))
 from gemini_agent import GeminiAgent  # noqa: E402
@@ -141,17 +141,18 @@ def test_tokens_split_cached_and_theoretical_cost():
     s = m.summary()
     assert (s["input_tokens"], s["cache_read_tokens"], s["output_tokens"]) == (2000, 8000, 500)
     assert s["cost_usd"] == 0.0 and s["cache_hit_pct"] == 80.0
+    PRICE = PRICES["gemini-3.8-flash"]
     expected = (2000 * PRICE["input"] + 8000 * PRICE["cached"] + 500 * PRICE["output"]) / 1e6
     assert abs(s["theoretical_cost_usd"] - round(expected, 6)) < 1e-9
-    assert abs(theoretical_cost_usd(2000, 8000, 500) - expected) < 1e-12
+    assert abs(theoretical_cost_usd(2000, 8000, 500, PRICE) - expected) < 1e-12
 
 
 def test_cache_report_explains_misses(capsys):
     from harness import log
     log.QUIET = False
     try:
-        gemini_caching.report(g_usage(prompt=1000), "step 1")
-        gemini_caching.report(g_usage(prompt=6000, cached=4096), "step 2")
+        gemini_caching.report(g_usage(prompt=1000), "step 1", "gemini-3.8-flash")
+        gemini_caching.report(g_usage(prompt=6000, cached=4096), "step 2", "gemini-3.8-flash")
     finally:
         log.QUIET = True
     err = capsys.readouterr().err
@@ -218,3 +219,36 @@ def test_key_only_from_gemini_env_and_never_in_results(tmp_path, data_dir, monke
     assert result["model"] == "gemini-3.8-flash" and "theoretical_cost_usd" in result["totals"]
     assert set(result) >= {"turns", "totals", "checks", "checks_passed", "lines_of_code"}  # same format as sdk.json
     assert result["lines_of_code"]["loop"] > 0
+
+
+def test_429_body_is_logged_with_key_redacted(data_dir, capsys, monkeypatch):
+    from harness import log
+    monkeypatch.setenv("GEMINI_API_KEY", "fake-key-in-env-for-test")
+    body = {"error": {"code": 429, "status": "RESOURCE_EXHAUSTED",
+                      "message": "Quota exceeded for key fake-key-in-env-for-test",
+                      "details": [{"@type": "type.googleapis.com/google.rpc.QuotaFailure",
+                                   "violations": [{"quotaId": "GenerateRequestsPerDayPerProjectPerModel-FreeTier",
+                                                   "quotaValue": "0"}]}]}}
+    client = FakeGemini([errors.ClientError(429, body), g_resp(g_text("ok"))])
+    log.QUIET = False
+    try:
+        make_agent(client, data_dir).turn("hi")
+    finally:
+        log.QUIET = True
+    err = capsys.readouterr().err
+    assert "GenerateRequestsPerDayPerProjectPerModel-FreeTier" in err and '"quotaValue": "0"' in err
+    assert "fake-key-in-env-for-test" not in err and "[REDACTED]" in err
+
+
+def test_model_parameter_reaches_the_request(data_dir):
+    client = FakeGemini([g_resp(g_text("ok"))])
+    agent = GeminiAgent(client, data_dir, "s1", "2027-04-12", fetch=fake_fetch, sleep=lambda s: None,
+                        model="gemini-3.5-flash-lite")
+    r = agent.turn("hi")
+    assert client.requests[0]["model"] == "gemini-3.5-flash-lite"
+    assert client.requests[0]["config"].thinking_config.thinking_level == types.ThinkingLevel.MEDIUM
+    assert r["theoretical_cost_usd"] is not None
+    other = GeminiAgent(FakeGemini([g_resp(g_text("ok"))]), data_dir / "x", "s1", "2027-04-12",
+                        fetch=fake_fetch, model="gemini-unknown-model")
+    assert other.config.thinking_config is None  # not a Gemini 3 model: keep the model's default thinking
+    assert other.turn("hi")["theoretical_cost_usd"] is None  # no known price: not guessed

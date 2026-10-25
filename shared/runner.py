@@ -76,7 +76,8 @@ async def run_scenario(make_agent, scenario_path: str, out_path: str, data_dir: 
     checks = run_checks(scenario["checks"], data_dir, by_id)
     totals = {k: round(sum(t[k] for t in turns), 5) for k in TOTAL_KEYS}
     if turns and all("theoretical_cost_usd" in t for t in turns):
-        totals["theoretical_cost_usd"] = round(sum(t["theoretical_cost_usd"] for t in turns), 6)
+        costs = [t["theoretical_cost_usd"] for t in turns]
+        totals["theoretical_cost_usd"] = None if None in costs else round(sum(costs), 6)  # None: no known price
     total_in = totals["input_tokens"] + totals["cache_read_tokens"] + totals["cache_write_tokens"]
     totals["cache_hit_pct"] = round(100 * totals["cache_read_tokens"] / total_in, 1) if total_in else 0.0
     result = {

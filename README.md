@@ -47,8 +47,22 @@ set GEMINI_API_KEY=
 ..\.venv\Scripts\python compare.py api_gemini sdk
 ```
 
-Model: `gemini-3.8-flash`, `thinking_level=MEDIUM`. Free-tier rate limits are handled with retry and backoff on
-HTTP 429/503 (the server's suggested delay when it sends one); the waits show up in the `seconds` column.
+Default model: `gemini-3.8-flash` (`thinking_level=MEDIUM` on Gemini 3 models). Pick another with `--model`, e.g.
+`--model gemini-3.5-flash-lite`. Free-tier rate limits are handled with retry and backoff on HTTP 429/503 (the
+server's suggested delay when it sends one); the waits show up in the `seconds` column. On every 429 the error
+body (which quota ran out, its limit, retry delay) is printed with the key redacted.
+
+Before a full run, check what this key and network can reach (no scenario, a few tiny requests):
+
+```
+set GEMINI_API_KEY=...
+..\.venv\Scripts\python check_gemini.py
+..\.venv\Scripts\python check_gemini.py gemini-3.8-flash gemini-3.5-flash-lite gemini-3.1-flash-lite
+set GEMINI_API_KEY=
+```
+
+It reports `models.list` and a "hi" request per model as OK or BLOCKED (network / key / model not found /
+quota, with `quotaId` and `limit`), and prints the scenario command for the first model that answered.
 
 For the API key, set it only in the current terminal, never in a file:
 PowerShell `$env:ANTHROPIC_API_KEY = "sk-ant-..."`, bash `export ANTHROPIC_API_KEY=...`.
