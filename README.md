@@ -4,6 +4,6 @@
 
 | תרגיל | פרויקט | תיאור |
 |---|---|---|
-| t1 | [study-planner-חסי-פוברסקי](t1/study-planner-חסי-פוברסקי/) | סוכן אחד, שני harnesses: מתכנן לימודים על ה-API הגולמי ועל Claude Agent SDK, עם תרחיש, מדידה ו[דוח השוואה](t1/study-planner-חסי-פוברסקי/REPORT.md) |
+| t1 | [study-planner](t1/study-planner/) | סוכן אחד, שני harnesses: מתכנן לימודים על ה-API הגולמי ועל Claude Agent SDK, עם תרחיש, מדידה ו[דוח השוואה](t1/study-planner/REPORT.md) |
 
 הסביבה הווירטואלית של כל תרגיל (`t1/.venv` וכו') לא נשמרת ב-git. מתקינים אותה מחדש לפי ה-README של התרגיל.
